@@ -49,7 +49,7 @@ public class GraduationStatusController {
         //Call course-api for all the courses in 2018 program code
         //------------------------------------------------------------
         Course[] courseArray = restTemplate.getForObject(
-                "http://localhost:9999/api/v1/courses",
+                "http://localhost:9999/api/v1/courses?programCode=2018",
                 Course[].class);
 
         List<Course> courses = Arrays.asList(courseArray);
@@ -68,7 +68,8 @@ public class GraduationStatusController {
         programRules = programRules.stream()
                 .filter(p -> GraduationStatusApiConstants.RULE_TYPE_ACTIVE_FLAG_Y
                         .compareToIgnoreCase(p.getActiveFlag()) == 0)
-                .collect(Collectors.toList());;
+                .collect(Collectors.toList());
+
         logger.debug("# All Program Rules for 2018 Graduation Program");
         logger.debug(programRules.toString() + "\n");
         //------------------------------------------------------------
@@ -138,18 +139,6 @@ public class GraduationStatusController {
         Student student = new Student();
 
         student.setPen(pen);
-        student.setLegalFirstName("John");
-        student.setLegalMiddleName("Mark");
-        student.setLegalLastName("Doe");
-        student.setDob("01-JAN-2005");
-        student.setSexCode("M");
-        student.setGenderCode("M");
-        student.setDataSourceCode("ABC123");
-        student.setUsualFirstName("John");
-        student.setUsualMiddleName("Mark");
-        student.setUsualLastName("Doe");
-        student.setEmail("john.doe@mydomain.ca");
-        student.setGradeCode("12");
         student.setAchievements(achievements);
 
         logger.debug("\n\n\n************** PRINTING Details for Student " + pen + " ******************");

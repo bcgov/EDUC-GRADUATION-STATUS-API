@@ -9,27 +9,29 @@ import java.util.UUID;
 @Data
 @Component
 public class Student {
-    private UUID studentId;
     private String pen;
-    private String legalFirstName;
-    private String legalMiddleName;
-    private String legalLastName;
-    private String dob;
-    private String sexCode;
-    private String genderCode;
-    private String dataSourceCode;
-    private String usualFirstName;
-    private String usualMiddleName;
-    private String usualLastName;
-    private String email;
+    private String legalFirstName = "John";
+    private String legalMiddleName = "Matthew";
+    private String legalLastName = "Doe";
+    private String graduationProgram = "2018";
+    private String school = "Oak Bay High School";
+    private String dob = "01-JAN-2005";
+    private String sexCode = "M";
+    private String genderCode = "M";
+    private String dataSourceCode = "AB12";
+    private String usualFirstName = "John";
+    private String usualMiddleName = "Matthew";
+    private String usualLastName = "Doe";
+    private String email = "john.doe@mydomain.ca";
     private String deceasedDate;
-    private String gradeCode;
+    private String gradeCode = "12";
+    private String citizenship = "C";
+    private String address = "123 Main Street, Victoria BC A1B2C3";
     private List<AchievementDto> achievements;
 
     @Override
     public String toString() {
         return "\nStudent{" +
-                "studentId=" + studentId +
                 ", pen='" + pen + '\'' +
                 ", legalFirstName='" + legalFirstName + '\'' +
                 ", legalMiddleName='" + legalMiddleName + '\'' +

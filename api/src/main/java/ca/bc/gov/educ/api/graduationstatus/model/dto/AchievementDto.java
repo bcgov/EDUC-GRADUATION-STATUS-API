@@ -16,9 +16,10 @@ public class AchievementDto {
     private Double interimPercent;
     private String finalLetterGrade;
     private int credits;
-    private CourseDto course;
     private String courseType;
     private String interimLetterGrade;
+    private int gradRequirementMet;
+    private CourseDto course;
 
     @Override
     public String toString() {
