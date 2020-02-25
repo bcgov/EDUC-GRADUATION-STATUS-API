@@ -7,9 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class GraduationStatusUtils {
 
@@ -19,7 +17,9 @@ public class GraduationStatusUtils {
 
         return courseAchievements
                 .stream()
-                .filter(courseAchievement -> "C+".compareTo(courseAchievement.getFinalLetterGrade()) != 0)
+                .filter(courseAchievement ->
+                        GraduationStatusApiConstants.FAIL_GRADE_CODE.compareTo(
+                                courseAchievement.getFinalLetterGrade()) != 0)
                 .collect(Collectors.toList());
     }
 
@@ -29,7 +29,7 @@ public class GraduationStatusUtils {
 
         List<CourseAchievement> copy = new ArrayList<CourseAchievement>(courseAchievements);
 
-        logger.debug("\n###################### Removing Duplicates ######################");
+        logger.debug("###################### Removing Duplicates ######################");
 
         for (int i=0; i < copy.size()-1; i++) {
 

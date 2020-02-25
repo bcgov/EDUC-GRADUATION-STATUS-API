@@ -19,4 +19,14 @@ public class GraduationStatusApiConstants {
 
     //Default Date format constants
     public static final String DEFAULT_DATE_FORMAT = "dd-MMM-yyyy";
+
+    //Grade Code Constants
+    public static final String FAIL_GRADE_CODE = "F";
+
+    //Rule Type Constants
+    public static final String RULE_TYPE_MATCH = "Match";
+    public static final String RULE_TYPE_MIN_CREDITS = "Credits 12";
+    public static final String RULE_TYPE_ELECTIVE_CREDITS = "Credits Elective";
+    public static final String RULE_TYPE_ACTIVE_FLAG_Y = "Y";
+    public static final String RULE_TYPE_ACTIVE_FLAG_N = "N";
 }
