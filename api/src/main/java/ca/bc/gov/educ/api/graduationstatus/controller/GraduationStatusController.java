@@ -7,7 +7,6 @@ import ca.bc.gov.educ.api.graduationstatus.util.GraduationStatusUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -54,8 +53,8 @@ public class GraduationStatusController {
 
         List<Course> courses = Arrays.asList(courseArray);
 
-        logger.debug("# All Courses for progran code 2018");
-        logger.debug(courses.toString() + "\n");
+        //logger.debug("# All Courses for progran code 2018");
+        //logger.debug(courses.toString() + "\n");
         //------------------------------------------------------------
 
         //Get all ACTIVE program rules for 2018 program
@@ -70,8 +69,8 @@ public class GraduationStatusController {
                         .compareToIgnoreCase(p.getActiveFlag()) == 0)
                 .collect(Collectors.toList());
 
-        logger.debug("# All Program Rules for 2018 Graduation Program");
-        logger.debug(programRules.toString() + "\n");
+        //logger.debug("# All Program Rules for 2018 Graduation Program");
+        //logger.debug(programRules.toString() + "\n");
         //------------------------------------------------------------
 
         // 2. Remove fails and duplicates
@@ -157,6 +156,8 @@ public class GraduationStatusController {
 
         student.setPen(pen);
         student.setAchievements(achievements);
+        List<String> msgs = new ArrayList<String>();
+        student.setGradMessages(msgs);
 
         logger.debug("\n\n\n************** PRINTING Details for Student " + pen + " ******************");
         //logger.debug(student.toString());
@@ -184,10 +185,13 @@ public class GraduationStatusController {
             MinCreditRule minCreditRule = new MinCreditRule();
             hasMinCredits = minCreditRule.execute(currentRule, student.getAchievements());
 
-            if (hasMinCredits)
+            if (hasMinCredits) {
+                student.getGradMessages().add("Min credit rule Passed!");
                 logger.debug("[" + currentRule.getRequirementName() + "] Rule Passed!!!!!!!!!!!!!!!!\n");
+            }
             else {
                 gradStatusFlag = false;
+                student.getGradMessages().add("Min credit rule Failed!");
                 logger.debug("[" + currentRule.getRequirementName() + "] Rule Failed XXXXXXXXXXXXXXXXXX\n");
             }
         }
@@ -244,6 +248,14 @@ public class GraduationStatusController {
         logger.debug("Leftover Course Achievements:" + achievementsCopy + "\n");
         logger.debug("Leftover Program Rules: " + programRulesMatch + "\n");
 
+        if (programRulesMatch.size() > 0) {
+            gradStatusFlag = false;
+            student.getGradMessages().add("Not all Match rules Met!");
+        }
+        else {
+            student.getGradMessages().add("All Match rules met!");
+        }
+
         //=======================================================================================
 
         //6. Run Min Required Elective credit rule
@@ -267,13 +279,21 @@ public class GraduationStatusController {
             MinCreditRule minCreditElectiveRule = new MinCreditRule();
             hasMinCreditsElective = minCreditElectiveRule.execute(currentRule, achievementsCopy);
 
-            if (hasMinCreditsElective)
+            if (hasMinCreditsElective) {
+                student.getGradMessages().add("Min elective credit rule Passed!");
                 logger.debug("[" + currentRule.getRequirementName() + "] Rule Passed!!!!!!!!!!!!!!!!\n");
+            }
             else {
                 gradStatusFlag = false;
+                student.getGradMessages().add("Min elective credit rule Failed!");
                 logger.debug("[" + currentRule.getRequirementName() + "] Rule Failed XXXXXXXXXXXXXXXXXX\n");
             }
         }
+
+        if (gradStatusFlag)
+            student.getGradMessages().add("Student Graduated!");
+        else
+            student.getGradMessages().add("Student Not Graduated!");
 
         return student;
     }

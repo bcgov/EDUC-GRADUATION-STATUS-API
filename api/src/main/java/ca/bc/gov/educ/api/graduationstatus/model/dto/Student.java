@@ -28,14 +28,17 @@ public class Student {
     private String citizenship = "C";
     private String address = "123 Main Street, Victoria BC A1B2C3";
     private List<AchievementDto> achievements;
+    private List<String> gradMessages;
 
     @Override
     public String toString() {
-        return "\nStudent{" +
-                ", pen='" + pen + '\'' +
+        return "Student{" +
+                "pen='" + pen + '\'' +
                 ", legalFirstName='" + legalFirstName + '\'' +
                 ", legalMiddleName='" + legalMiddleName + '\'' +
                 ", legalLastName='" + legalLastName + '\'' +
+                ", graduationProgram='" + graduationProgram + '\'' +
+                ", school='" + school + '\'' +
                 ", dob='" + dob + '\'' +
                 ", sexCode='" + sexCode + '\'' +
                 ", genderCode='" + genderCode + '\'' +
@@ -46,7 +49,10 @@ public class Student {
                 ", email='" + email + '\'' +
                 ", deceasedDate='" + deceasedDate + '\'' +
                 ", gradeCode='" + gradeCode + '\'' +
+                ", citizenship='" + citizenship + '\'' +
+                ", address='" + address + '\'' +
                 ", achievements=" + achievements +
+                ", gradMessages=" + gradMessages +
                 '}';
     }
 }
