@@ -19,6 +19,8 @@ public class CourseAchievement {
     private UUID courseId;
     private String courseType;
     private String interimLetterGrade;
+    private boolean isFailed;
+    private boolean isDuplicate;
 
     @Override
     public String toString() {

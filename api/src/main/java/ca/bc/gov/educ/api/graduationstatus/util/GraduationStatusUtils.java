@@ -13,31 +13,40 @@ public class GraduationStatusUtils {
 
     private static Logger logger = LoggerFactory.getLogger(GraduationStatusUtils.class);
 
-    public static List<CourseAchievement> removeFails(List<CourseAchievement> courseAchievements) {
+    public static List<CourseAchievement> markFails(List<CourseAchievement> courseAchievements) {
 
-        return courseAchievements
+        for (CourseAchievement ca : courseAchievements) {
+            if (GraduationStatusApiConstants.FAIL_GRADE_CODE.compareTo(
+                    ca.getFinalLetterGrade()) == 0) {
+                ca.setFailed(true);
+            }
+        }
+        return courseAchievements;
+
+        /*return courseAchievements
                 .stream()
                 .filter(courseAchievement ->
                         GraduationStatusApiConstants.FAIL_GRADE_CODE.compareTo(
                                 courseAchievement.getFinalLetterGrade()) != 0)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
     }
 
     //sort on course_code A on course_grade_level A on final_percent D on course_session A
     // Commented on Rocket-chat[student-achievement-mvp] Kim Gray - Feb 5, 2020 2:18 PM
-    public static List<CourseAchievement> removeDuplicates(List<CourseAchievement> courseAchievements) {
+    public static List<CourseAchievement> markDuplicates(List<CourseAchievement> courseAchievements) {
 
-        List<CourseAchievement> copy = new ArrayList<CourseAchievement>(courseAchievements);
+        //List<CourseAchievement> copy = new ArrayList<CourseAchievement>(courseAchievements);
 
         logger.debug("###################### Removing Duplicates ######################");
 
-        for (int i=0; i < copy.size()-1; i++) {
+        for (int i=0; i < courseAchievements.size()-1; i++) {
 
-            for (int j=i+1; j<copy.size(); j++) {
+            for (int j=i+1; j<courseAchievements.size(); j++) {
 
-                if (copy.get(i).getCourseId().equals(copy.get(j).getCourseId())) {
-                    logger.debug("comparing " + copy.get(i).getCourseAchievementId() + " with "
-                            + copy.get(j).getCourseAchievementId() + " -> Duplicate FOUND - CourseID:" + copy.get(i).getCourseId());
+                if (courseAchievements.get(i).getCourseId().equals(courseAchievements.get(j).getCourseId())) {
+                    logger.debug("comparing " + courseAchievements.get(i).getCourseAchievementId() + " with "
+                            + courseAchievements.get(j).getCourseAchievementId() + " -> Duplicate FOUND - CourseID:"
+                            + courseAchievements.get(i).getCourseId());
 
                     //TODO: If finalPercent of A greater than finalPercent of B -> SELECT A copy to B
                     //      IF finalPercent of B greater than finalPercent of A -> SELECT B copy to A
@@ -46,21 +55,26 @@ public class GraduationStatusUtils {
                     //              IF sessionDate of B is older than sessionDate of A -> SELECT B copy  to A
                     //              IF sessionDate of A is equal to sessionDate of B -> SELECT A copy to B
 
-                    if (copy.get(i).getFinalPercent() > copy.get(j).getFinalPercent()) {
-                        copy.set(j, copy.get(i));
-                    }else if (copy.get(i).getFinalPercent() < copy.get(j).getFinalPercent()) {
-                        copy.set(i, copy.get(j));
-                    }else if (copy.get(i).getFinalPercent() == copy.get(j).getFinalPercent()) {
+                    if (courseAchievements.get(i).getFinalPercent() > courseAchievements.get(j).getFinalPercent()) {
+                        //copy.set(j, copy.get(i));
+                        courseAchievements.get(i).setDuplicate(false);
+                        courseAchievements.get(j).setDuplicate(true);
+                    }else if (courseAchievements.get(i).getFinalPercent() < courseAchievements.get(j).getFinalPercent()) {
+                        //courseAchievements.set(i, courseAchievements.get(j));
+                        courseAchievements.get(i).setDuplicate(true);
+                        courseAchievements.get(j).setDuplicate(false);
+                    }else if (courseAchievements.get(i).getFinalPercent() == courseAchievements.get(j).getFinalPercent()) {
 
-                        if (parseDate(copy.get(i).getSessionDate())
-                                .compareTo(parseDate(copy.get(j).getSessionDate())) < 0) {
-                            copy.set(j, copy.get(i));
-                        }else if (parseDate(copy.get(i).getSessionDate())
-                                .compareTo(parseDate(copy.get(j).getSessionDate())) > 0) {
-                            copy.set(i, copy.get(j));
-                        }else if (parseDate(copy.get(i).getSessionDate())
-                                .compareTo(parseDate(copy.get(j).getSessionDate())) == 0) {
-                            copy.set(j, copy.get(i));
+                        if (parseDate(courseAchievements.get(i).getSessionDate())
+                                .compareTo(parseDate(courseAchievements.get(j).getSessionDate())) < 0) {
+                            //courseAchievements.set(j, courseAchievements.get(i));
+                            courseAchievements.get(i).setDuplicate(false);
+                            courseAchievements.get(j).setDuplicate(true);
+                        }else if (parseDate(courseAchievements.get(i).getSessionDate())
+                                .compareTo(parseDate(courseAchievements.get(j).getSessionDate())) >= 0) {
+                            //courseAchievements.set(i, courseAchievements.get(j));
+                            courseAchievements.get(i).setDuplicate(true);
+                            courseAchievements.get(j).setDuplicate(false);
                         }
                     }
                 }
@@ -71,9 +85,9 @@ public class GraduationStatusUtils {
         }
 
         //Remove duplicates
-        copy = copy.stream().distinct().collect(Collectors.toList());
+        //copy = copy.stream().distinct().collect(Collectors.toList());
 
-        return copy;
+        return courseAchievements;
     }
 
     public static String formatDate (Date date) {

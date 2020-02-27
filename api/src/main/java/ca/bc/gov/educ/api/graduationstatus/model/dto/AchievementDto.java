@@ -19,6 +19,8 @@ public class AchievementDto {
     private String courseType;
     private String interimLetterGrade;
     private int gradRequirementMet;
+    private boolean isFailed;
+    private boolean isDuplicate;
     private CourseDto course;
 
     @Override

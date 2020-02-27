@@ -1,8 +1,7 @@
 package ca.bc.gov.educ.api.graduationstatus.rule;
 
-import ca.bc.gov.educ.api.graduationstatus.controller.GraduationStatusController;
 import ca.bc.gov.educ.api.graduationstatus.model.dto.AchievementDto;
-import ca.bc.gov.educ.api.graduationstatus.model.dto.CourseAchievement;
+import ca.bc.gov.educ.api.graduationstatus.model.dto.ProgramRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,32 +10,35 @@ import java.util.List;
 public class MinCreditRule {
 
     private static Logger logger = LoggerFactory.getLogger(MinCreditRule.class);
-    private int minCredits;
 
-    public MinCreditRule(int minCredits) {
-        this.minCredits = minCredits;
-    }
-
-    public boolean execute(List<?> courseAchievements) {
+    public boolean execute(ProgramRule programRule, List<AchievementDto> achievements) {
         int totalCredits = 0;
+        int requiredCredits = programRule.getRequiredCredits();
 
-        if (courseAchievements == null || courseAchievements.size() == 0)
+        if (achievements == null || achievements.size() == 0)
             return false;
 
-        if (courseAchievements.get(0) instanceof CourseAchievement) {
-            totalCredits = courseAchievements
+        if (programRule.getRequiredLevel() == 0) {
+            totalCredits = achievements
                     .stream()
-                    .mapToInt(courseAchievement -> ((CourseAchievement)courseAchievement).getCredits())
+                    .filter(achievement -> !achievement.isDuplicate()
+                            && !achievement.isFailed()
+                    )
+                    .mapToInt(achievement -> achievement.getCredits())
                     .sum();
         }
-        else if (courseAchievements.get(0) instanceof AchievementDto) {
-            totalCredits = courseAchievements
+        else {
+            totalCredits = achievements
                     .stream()
-                    .mapToInt(courseAchievement -> ((AchievementDto)courseAchievement).getCredits())
+                    .filter(achievement -> !achievement.isDuplicate()
+                            && !achievement.isFailed()
+                            && achievement.getCourse().getCourseGradeLevel().startsWith(programRule.getRequiredLevel() + "")
+                            )
+                    .mapToInt(achievement -> achievement.getCredits())
                     .sum();
         }
 
-        logger.debug("Min Credits -> Required:" + minCredits + " Has:" + totalCredits);
-        return totalCredits >= minCredits;
+        logger.debug("Min Credits -> Required:" + requiredCredits + " Has:" + totalCredits);
+        return totalCredits >= requiredCredits;
     }
 }

@@ -7,6 +7,7 @@ public class GraduationStatusApiConstants {
     public static final String API_ROOT_MAPPING = "";
     public static final String API_VERSION = "v1";
     public static final String GRADUATION_STATUS_API_ROOT_MAPPING = "/api/" + API_VERSION + "/graduation-status";
+    public static final String GRADUATION_STATUS_BY_PEN = "/{pen}";
 
     //Attribute Constants
     public static final String PEN_ATTRIBUTE = "pen";
@@ -25,8 +26,8 @@ public class GraduationStatusApiConstants {
 
     //Rule Type Constants
     public static final String RULE_TYPE_MATCH = "Match";
-    public static final String RULE_TYPE_MIN_CREDITS = "Credits 12";
-    public static final String RULE_TYPE_ELECTIVE_CREDITS = "Credits Elective";
+    public static final String RULE_TYPE_MIN_CREDITS = "MinCredits";
+    public static final String RULE_TYPE_MIN_CREDITS_ELECTIVE = "MinCreditsElective";
     public static final String RULE_TYPE_ACTIVE_FLAG_Y = "Y";
     public static final String RULE_TYPE_ACTIVE_FLAG_N = "N";
 }

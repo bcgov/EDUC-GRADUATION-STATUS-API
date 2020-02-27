@@ -21,14 +21,13 @@ public class GraduationStatusController {
 
     private static Logger logger = LoggerFactory.getLogger(GraduationStatusController.class);
 
-    @Value( "${default.pen}" )
-    private String pen;
-
     @Autowired
     RestTemplate restTemplate;
 
-    @GetMapping (GraduationStatusApiConstants.API_ROOT_MAPPING)
-    public Student getResponse() {
+    private boolean gradStatusFlag = true;
+
+    @GetMapping (GraduationStatusApiConstants.GRADUATION_STATUS_BY_PEN)
+    public Student getResponse(@PathVariable String pen) {
         logger.debug("#Graduation Status API\n");
 
         // 1. Get All achievements for a Student
@@ -73,6 +72,21 @@ public class GraduationStatusController {
         logger.debug("# All Program Rules for 2018 Graduation Program");
         logger.debug(programRules.toString() + "\n");
         //------------------------------------------------------------
+
+        // 2. Remove fails and duplicates
+        //=======================================================================================
+        List<CourseAchievement> uniqueCourseAchievements = new ArrayList<CourseAchievement>();
+
+        // 2.1 Remove Fails
+        courseAchievements = GraduationStatusUtils.markFails(courseAchievements);
+        logger.debug("# Fails Removed ");
+        logger.debug(courseAchievements.toString() + "\n");
+
+        // 2.2 Remove Duplicates
+        courseAchievements = GraduationStatusUtils.markDuplicates(courseAchievements);
+        logger.debug("# Duplicates Removed ");
+        logger.debug(courseAchievements.toString() + "\n");
+        //=======================================================================================
 
         List<AchievementDto> achievements = new ArrayList<AchievementDto>();
 
@@ -132,6 +146,8 @@ public class GraduationStatusController {
             ach.setCourseType(ca.getCourseType());
             ach.setInterimLetterGrade(ca.getInterimLetterGrade());
             ach.setPen(ca.getPen());
+            ach.setFailed(ca.isFailed());
+            ach.setDuplicate(ca.isDuplicate());
 
             achievements.add(ach);
         }
@@ -145,30 +161,34 @@ public class GraduationStatusController {
         logger.debug(student.toString());
         logger.debug("***********************************************************************************************************\n\n");
 
-        // 2. Remove fails and duplicates
+        // 3. Run Min Required Credit rules
         //=======================================================================================
-        List<CourseAchievement> uniqueCourseAchievements = new ArrayList<CourseAchievement>();
+        List<ProgramRule> programRulesMinCredits = programRules
+                .stream()
+                .filter(programRule ->
+                        GraduationStatusApiConstants.RULE_TYPE_MIN_CREDITS.compareTo(
+                                programRule.getRequirementType()) == 0
+                        && GraduationStatusApiConstants.RULE_TYPE_ACTIVE_FLAG_Y.compareToIgnoreCase(
+                                programRule.getActiveFlag()) == 0
+                        )
+                .collect(Collectors.toList());
 
-        // 2.1 Remove Fails
-        uniqueCourseAchievements = GraduationStatusUtils.removeFails(courseAchievements);
-        logger.debug("# Fails Removed ");
-        logger.debug(uniqueCourseAchievements.toString() + "\n");
+        ListIterator<ProgramRule> programRuleIterator = programRulesMinCredits.listIterator();
+        boolean hasMinCredits = false;
 
-        // 2.2 Remove Duplicates
-        uniqueCourseAchievements = GraduationStatusUtils.removeDuplicates(uniqueCourseAchievements);
-        logger.debug("# Duplicates Removed ");
-        logger.debug(uniqueCourseAchievements.toString() + "\n");
-        //=======================================================================================
+        while(programRuleIterator.hasNext()) {
+            ProgramRule currentRule = programRuleIterator.next();
 
-        // 3. Run Grade 12 Credit grade rule
-        //=======================================================================================
-        MinCreditRule minCreditRule = new MinCreditRule(16);
-        boolean hasMinCredits = minCreditRule.execute(uniqueCourseAchievements);
+            MinCreditRule minCreditRule = new MinCreditRule();
+            hasMinCredits = minCreditRule.execute(currentRule, student.getAchievements());
 
-        if (hasMinCredits)
-            logger.debug("Min Credit Rule Passed!!!!!!!!!!!!!!!!\n");
-        else
-            logger.debug("Min Credit Rule Failed XXXXXXXXXXXXXXXXXX\n");
+            if (hasMinCredits)
+                logger.debug("[" + currentRule.getRequirementName() + "] Rule Passed!!!!!!!!!!!!!!!!\n");
+            else {
+                gradStatusFlag = false;
+                logger.debug("[" + currentRule.getRequirementName() + "] Rule Failed XXXXXXXXXXXXXXXXXX\n");
+            }
+        }
         //=======================================================================================
 
 
@@ -187,11 +207,11 @@ public class GraduationStatusController {
                                 programRule.getRequirementType()) == 0)
                 .collect(Collectors.toList());
 
-        ListIterator<AchievementDto> iter = achievementsCopy.listIterator();
+        ListIterator<AchievementDto> achievementsIterator = achievementsCopy.listIterator();
 
-        while(iter.hasNext()) {
+        while(achievementsIterator.hasNext()) {
 
-            AchievementDto tempAchievement = iter.next();
+            AchievementDto tempAchievement = achievementsIterator.next();
             ProgramRule tempProgramRule = programRulesMatch.stream()
                     .filter(pr -> tempAchievement
                             .getCourse()
@@ -201,14 +221,13 @@ public class GraduationStatusController {
                     .orElse(null);
 
             if(tempProgramRule != null){
-                iter.remove();
+                achievementsIterator.remove();
                 logger.debug("Requirement Met -> Requirement Code:" + tempProgramRule.getRequirementCode()
                                 + " Course:" + tempAchievement.getCourse().getCourseName() + "\n");
 
                 programRulesMatch.remove(tempProgramRule);
                 achievementsCopy.remove(tempAchievement);
             }
-
         }
 
         logger.debug("Leftover Course Achievements:" + achievementsCopy + "\n");
@@ -216,21 +235,34 @@ public class GraduationStatusController {
 
         //=======================================================================================
 
-        //6. Run elective credit rule
+        //6. Run Min Required Elective credit rule
         //=======================================================================================
-        minCreditRule = new MinCreditRule(28);
-        boolean hasElectiveCredits = minCreditRule.execute(achievementsCopy);
+        List<ProgramRule> programRulesMinCreditsElectives = programRules
+                .stream()
+                .filter(programRule ->
+                        GraduationStatusApiConstants.RULE_TYPE_MIN_CREDITS_ELECTIVE.compareTo(
+                                programRule.getRequirementType()) == 0
+                                && GraduationStatusApiConstants.RULE_TYPE_ACTIVE_FLAG_Y.compareToIgnoreCase(
+                                programRule.getActiveFlag()) == 0
+                )
+                .collect(Collectors.toList());
 
-        if (hasElectiveCredits)
-            logger.debug("Elective Credit Rule Passed!!!!!!!!!!!!!!!!\n");
-        else
-            logger.debug("Elective Credit Rule Failed XXXXXXXXXXXXXXXXXX\n");
-        //=======================================================================================
+        programRuleIterator = programRulesMinCreditsElectives.listIterator();
+        boolean hasMinCreditsElective = false;
 
-        /*if (hasMinCredits && programRulesMatch.size() == 0 && hasElectiveCredits)
-            return "Congratulations! " + pen + "is eligible for Graduation. :-)";
-        else
-            return "Sorry! " + pen + " is not eligible for Graduation. :-(";*/
+        while(programRuleIterator.hasNext()) {
+            ProgramRule currentRule = programRuleIterator.next();
+
+            MinCreditRule minCreditElectiveRule = new MinCreditRule();
+            hasMinCreditsElective = minCreditElectiveRule.execute(currentRule, student.getAchievements());
+
+            if (hasMinCreditsElective)
+                logger.debug("[" + currentRule.getRequirementName() + "] Rule Passed!!!!!!!!!!!!!!!!\n");
+            else {
+                gradStatusFlag = false;
+                logger.debug("[" + currentRule.getRequirementName() + "] Rule Failed XXXXXXXXXXXXXXXXXX\n");
+            }
+        }
 
         return student;
     }
