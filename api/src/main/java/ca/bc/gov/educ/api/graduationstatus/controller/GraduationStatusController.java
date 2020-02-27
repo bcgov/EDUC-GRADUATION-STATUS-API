@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @CrossOrigin
 @RestController
@@ -158,7 +159,8 @@ public class GraduationStatusController {
         student.setAchievements(achievements);
 
         logger.debug("\n\n\n************** PRINTING Details for Student " + pen + " ******************");
-        logger.debug(student.toString());
+        //logger.debug(student.toString());
+        logger.debug("SKIPPED");
         logger.debug("***********************************************************************************************************\n\n");
 
         // 3. Run Min Required Credit rules
@@ -199,7 +201,8 @@ public class GraduationStatusController {
 
         //5. Run course specific grad rules
         //=======================================================================================
-        List<AchievementDto> achievementsCopy = new ArrayList<>(achievements);
+        List<AchievementDto> achievementsCopy = new ArrayList<AchievementDto>(student.getAchievements());
+        List<AchievementDto> finalAchievements = new ArrayList<AchievementDto>();
         List<ProgramRule> programRulesMatch = programRules
                 .stream()
                 .filter(programRule ->
@@ -225,10 +228,18 @@ public class GraduationStatusController {
                 logger.debug("Requirement Met -> Requirement Code:" + tempProgramRule.getRequirementCode()
                                 + " Course:" + tempAchievement.getCourse().getCourseName() + "\n");
 
+                tempAchievement.setGradRequirementMet(tempProgramRule.getRequirementCode());
+                finalAchievements.add(tempAchievement);
                 programRulesMatch.remove(tempProgramRule);
                 achievementsCopy.remove(tempAchievement);
             }
         }
+
+        finalAchievements = Stream.concat(finalAchievements.stream()
+                , achievementsCopy.stream())
+                .collect(Collectors.toList());
+
+        student.setAchievements(finalAchievements);
 
         logger.debug("Leftover Course Achievements:" + achievementsCopy + "\n");
         logger.debug("Leftover Program Rules: " + programRulesMatch + "\n");
@@ -254,7 +265,7 @@ public class GraduationStatusController {
             ProgramRule currentRule = programRuleIterator.next();
 
             MinCreditRule minCreditElectiveRule = new MinCreditRule();
-            hasMinCreditsElective = minCreditElectiveRule.execute(currentRule, student.getAchievements());
+            hasMinCreditsElective = minCreditElectiveRule.execute(currentRule, achievementsCopy);
 
             if (hasMinCreditsElective)
                 logger.debug("[" + currentRule.getRequirementName() + "] Rule Passed!!!!!!!!!!!!!!!!\n");
