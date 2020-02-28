@@ -182,7 +182,7 @@ public class GraduationStatusController {
             }
             else {
                 gradStatusFlag = false;
-                student.getRequirementsNotMet().add("Met " + currentRule.getNotMetDescription());
+                student.getRequirementsNotMet().add("Not met " + currentRule.getNotMetDescription());
                 logger.debug("[" + currentRule.getRequirementName() + "] Rule Failed XXXXXXXXXXXXXXXXXX\n");
             }
         }
@@ -244,7 +244,7 @@ public class GraduationStatusController {
             gradStatusFlag = false;
 
             for (ProgramRule programRule : programRulesMatch) {
-                student.getRequirementsNotMet().add("Met " + programRule.getNotMetDescription());
+                student.getRequirementsNotMet().add("Not met " + programRule.getNotMetDescription());
             }
 
             student.getGradMessages().add("Not all Match rules Met!");
@@ -282,7 +282,7 @@ public class GraduationStatusController {
             }
             else {
                 gradStatusFlag = false;
-                student.getRequirementsNotMet().add("Met " + currentRule.getNotMetDescription());
+                student.getRequirementsNotMet().add("Not met " + currentRule.getNotMetDescription());
                 logger.debug("[" + currentRule.getRequirementName() + "] Rule Failed XXXXXXXXXXXXXXXXXX\n");
             }
         }
