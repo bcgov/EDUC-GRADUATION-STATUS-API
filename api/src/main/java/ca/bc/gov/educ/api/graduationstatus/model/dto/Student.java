@@ -27,8 +27,10 @@ public class Student {
     private String gradeCode = "12";
     private String citizenship = "C";
     private String address = "123 Main Street, Victoria BC A1B2C3";
-    private List<AchievementDto> achievements;
     private List<String> gradMessages;
+    private List<String> requirementsMet;
+    private List<String> requirementsNotMet;
+    private List<AchievementDto> achievements;
 
     @Override
     public String toString() {
