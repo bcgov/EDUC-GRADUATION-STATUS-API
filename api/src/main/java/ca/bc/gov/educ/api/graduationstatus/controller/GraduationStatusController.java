@@ -38,46 +38,41 @@ public class GraduationStatusController {
 
         List<CourseAchievement> courseAchievements = Arrays.asList(courseAchievementsArray);
 
-        logger.debug("# All Course Achievements for the Student: " + pen);
+        logger.debug("Found " + courseAchievements.size() + " Course Achievements for the Student: " + pen);
         logger.debug(courseAchievements.toString() + "\n");
         //=======================================================================================
 
         //Populate course achievements with course data
-        //Later, new api for Courses by program code
+
+        // TODO: Get Program Code for a Student and use that code to get the courses.
+        //      OR send a list of courses from course achievements for a given student
+        //         and retrieve the course details from course API
+        //          (Needs a new Course API endpoint that supports this)
 
         //Call course-api for all the courses in 2018 program code
         //------------------------------------------------------------
         Course[] courseArray = restTemplate.getForObject(
                 "http://localhost:9999/api/v1/courses?programCode=2018",
                 Course[].class);
-
         List<Course> courses = Arrays.asList(courseArray);
-
-        //logger.debug("# All Courses for progran code 2018");
-        //logger.debug(courses.toString() + "\n");
-        //------------------------------------------------------------
 
         //Get all ACTIVE program rules for 2018 program
         //------------------------------------------------------------
         ProgramRule[] programRulesArray = restTemplate.getForObject(
                 "http://localhost:9997/api/v1/program-rules",
                 ProgramRule[].class);
-
         List<ProgramRule> programRules = Arrays.asList(programRulesArray);
         programRules = programRules.stream()
                 .filter(p -> GraduationStatusApiConstants.RULE_TYPE_ACTIVE_FLAG_Y
                         .compareToIgnoreCase(p.getActiveFlag()) == 0)
                 .collect(Collectors.toList());
 
-        //logger.debug("# All Program Rules for 2018 Graduation Program");
-        //logger.debug(programRules.toString() + "\n");
-        //------------------------------------------------------------
-
         // 2. Remove fails and duplicates
         //=======================================================================================
         List<CourseAchievement> uniqueCourseAchievements = new ArrayList<CourseAchievement>();
 
         // 2.1 Remove Fails
+        int count = courseAchievements.size();
         courseAchievements = GraduationStatusUtils.markFails(courseAchievements);
         logger.debug("# Fails Removed ");
         logger.debug(courseAchievements.toString() + "\n");
@@ -156,13 +151,9 @@ public class GraduationStatusController {
 
         student.setPen(pen);
         student.setAchievements(achievements);
-        List<String> msgs = new ArrayList<String>();
-        student.setGradMessages(msgs);
-
-        logger.debug("\n\n\n************** PRINTING Details for Student " + pen + " ******************");
-        //logger.debug(student.toString());
-        logger.debug("SKIPPED");
-        logger.debug("***********************************************************************************************************\n\n");
+        student.setGradMessages(new ArrayList<String>());
+        student.setRequirementsMet(new ArrayList<String>());
+        student.setRequirementsNotMet(new ArrayList<String>());
 
         // 3. Run Min Required Credit rules
         //=======================================================================================
