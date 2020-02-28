@@ -177,12 +177,12 @@ public class GraduationStatusController {
             hasMinCredits = minCreditRule.execute(currentRule, student.getAchievements());
 
             if (hasMinCredits) {
-                student.getGradMessages().add("Min credit rule Passed!");
+                student.getRequirementsMet().add("Met " + currentRule.getRequirementName());
                 logger.debug("[" + currentRule.getRequirementName() + "] Rule Passed!!!!!!!!!!!!!!!!\n");
             }
             else {
                 gradStatusFlag = false;
-                student.getGradMessages().add("Min credit rule Failed!");
+                student.getRequirementsNotMet().add("Met " + currentRule.getNotMetDescription());
                 logger.debug("[" + currentRule.getRequirementName() + "] Rule Failed XXXXXXXXXXXXXXXXXX\n");
             }
         }
@@ -224,6 +224,7 @@ public class GraduationStatusController {
                                 + " Course:" + tempAchievement.getCourse().getCourseName() + "\n");
 
                 tempAchievement.setGradRequirementMet(tempProgramRule.getRequirementCode());
+                student.getRequirementsMet().add("Met " + tempProgramRule.getRequirementName());
                 finalAchievements.add(tempAchievement);
                 programRulesMatch.remove(tempProgramRule);
                 achievementsCopy.remove(tempAchievement);
@@ -241,6 +242,11 @@ public class GraduationStatusController {
 
         if (programRulesMatch.size() > 0) {
             gradStatusFlag = false;
+
+            for (ProgramRule programRule : programRulesMatch) {
+                student.getRequirementsNotMet().add("Met " + programRule.getNotMetDescription());
+            }
+
             student.getGradMessages().add("Not all Match rules Met!");
         }
         else {
@@ -271,12 +277,12 @@ public class GraduationStatusController {
             hasMinCreditsElective = minCreditElectiveRule.execute(currentRule, achievementsCopy);
 
             if (hasMinCreditsElective) {
-                student.getGradMessages().add("Min elective credit rule Passed!");
+                student.getRequirementsMet().add("Met " + currentRule.getRequirementName());
                 logger.debug("[" + currentRule.getRequirementName() + "] Rule Passed!!!!!!!!!!!!!!!!\n");
             }
             else {
                 gradStatusFlag = false;
-                student.getGradMessages().add("Min elective credit rule Failed!");
+                student.getRequirementsNotMet().add("Met " + currentRule.getNotMetDescription());
                 logger.debug("[" + currentRule.getRequirementName() + "] Rule Failed XXXXXXXXXXXXXXXXXX\n");
             }
         }
