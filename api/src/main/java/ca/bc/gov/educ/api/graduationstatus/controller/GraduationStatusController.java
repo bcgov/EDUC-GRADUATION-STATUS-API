@@ -24,10 +24,10 @@ public class GraduationStatusController {
     @Autowired
     RestTemplate restTemplate;
 
-    private boolean gradStatusFlag = true;
-
     @GetMapping (GraduationStatusApiConstants.GRADUATION_STATUS_BY_PEN)
     public Student getResponse(@PathVariable String pen) {
+
+        boolean gradStatusFlag = true;
         logger.debug("#Graduation Status API\n");
 
         // 1. Get All achievements for a Student
