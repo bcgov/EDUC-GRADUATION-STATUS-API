@@ -2,22 +2,22 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: 'educ-student-api-template'
+  template: 'educ-graduation-status-api-template'
 metadata:
-  name: 'educ-student-api-template'
+  name: 'educ-graduation-status-api-template'
 objects:
   - apiVersion: v1
     kind: BuildConfig
     metadata:
       labels:
-        build: educ-student-api-pipeline
-      name: educ-student-api-pipeline
-      namespace: c2mvws-tools
+        build: educ-graduation-status-api-pipeline
+      name: educ-graduation-status-api-pipeline
+      namespace: wbmfsf-tools
     spec:
       source:
         git:
           ref: master
-          uri: 'https://github.com/bcgov/EDUC-STUDENT-API'
+          uri: 'https://github.com/bcgov/EDUC-GRADUATION-STATUS-API'
         type: Git
       strategy:
         jenkinsPipelineStrategy:

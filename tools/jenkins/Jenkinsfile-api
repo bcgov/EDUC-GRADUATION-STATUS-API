@@ -1,7 +1,7 @@
 pipeline{
   agent {
     kubernetes {
-      label 'mavenPod'
+      label 'maven'
       cloud 'openshift'
       defaultContainer 'jnlp'
       serviceAccount 'jenkins'
@@ -21,32 +21,6 @@ pipeline{
             resourceRequestMemory: 2Gi
             resourceLimitCpu: 3
             resourceLimitMemory: 2Gi
-            env:
-            - name: JDBC_URL
-              valueFrom:
-                secretKeyRef:
-                  name: 'unit-test-db'
-                  key: url
-            - name: ORACLE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: 'unit-test-db'
-                  key: username
-            - name: TMP_ORACLE_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  name: 'unit-test-db'
-                  key: password
-            - name: SONARQUBE_HOSTNAME
-              valueFrom:
-                secretKeyRef:
-                  name: 'student-api-secrets'
-                  key: sonarqube-host
-            - name: SONARQUBE_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: 'student-api-secrets'
-                  key: sonarqube-token
             volumeMounts:
             - mountPath: '/home/jenkins/.m2'
               name: pvc
@@ -54,34 +28,33 @@ pipeline{
           - name: pvc
             persistentVolumeClaim:
               claimName: 'maven-slave-pvc'
-
       """
     }
   }
-  environment{
-    TOOLS = 'c2mvws-tools'
-    DEV = 'c2mvws-dev'
-    TEST = 'c2mvws-test'
-    PROD = 'c2mvws-prod'
 
-    REPO_NAME = 'educ-student-api'
-    OWNER = 'bcgov'
-    JOB_NAME = 'master'
-    TAG = 'dev'
+    environment{
+      TOOLS = 'wbmfsf-tools'
+      DEV = 'wbmfsf-dev'
+      TEST = 'wbmfsf-test'
+      PROD = 'wbmfsf-prod'
 
-    APP_NAME = 'student-api'
-    APP_DOMAIN = 'pathfinder.gov.bc.ca'
+      REPO_NAME = 'educ-graduation-status-api'
+      OWNER = 'bcgov'
+      JOB_NAME = 'master'
+      TAG = 'dev'
 
-    SOURCE_REPO_RAW = 'https://github.com/${OWNER}/${REPO_NAME}/master'
-    SOURCE_REPO_REF = 'master'
-    SOURCE_REPO_URL = 'https://github.com/${OWNER}/${REPO_NAME}.git'
+      APP_NAME = 'graduation-status-api'
+      APP_DOMAIN = 'pathfinder.gov.bc.ca'
 
-    TOOLS_HOST_ROUTE = "${APP_NAME}-${TOOLS}.${APP_DOMAIN}"
-    DEV_HOST_ROUTE = "${APP_NAME}-${DEV}.${APP_DOMAIN}"
-    TEST_HOST_ROUTE = "${APP_NAME}-${TEST}.${APP_DOMAIN}"
-    PROD_HOST_ROUTE = "${APP_NAME}-${PROD}.${APP_DOMAIN}"
+      SOURCE_REPO_RAW = 'https://github.com/${OWNER}/${REPO_NAME}/master'
+      SOURCE_REPO_REF = 'master'
+      SOURCE_REPO_URL = 'https://github.com/${OWNER}/${REPO_NAME}.git'
+
+      TOOLS_HOST_ROUTE = "${APP_NAME}-${TOOLS}.${APP_DOMAIN}"
+      DEV_HOST_ROUTE = "${APP_NAME}-${DEV}.${APP_DOMAIN}"
+      TEST_HOST_ROUTE = "${APP_NAME}-${TEST}.${APP_DOMAIN}"
+      PROD_HOST_ROUTE = "${APP_NAME}-${PROD}.${APP_DOMAIN}"
   }
-
   stages{
     stage('Unit Tests') {
       steps {
@@ -90,7 +63,7 @@ pipeline{
           VERSION = pom.version
 
           //Env variable is to fix issue where special characters in password were not being escaped properly
-          def command = $//bin/bash -c "mvn -f ./api/pom.xml clean test -DORACLE_PASSWORD=${TMP_ORACLE_PASSWORD}"/$
+          def command = $//bin/bash -c "mvn -f ./api/pom.xml test"/$
           sh """
             set +x
             $command
@@ -101,14 +74,6 @@ pipeline{
     stage('Build App') {
       steps {
         sh '/bin/bash -c "mvn -f ./api/pom.xml -Dmaven.test.skip=true package"'
-      }
-    }
-	  stage('Add client jar to m2 repo') {
-		  steps {
-        script {
-          def addJar = $//bin/bash -c "mvn install:install-file -Dfile=./api/target/student-api-${VERSION}-client.jar -DgroupId=ca.bc.gov.educ.api.student -DartifactId=student-api-client -Dversion=${VERSION} -Dpackaging=jar"/$
-          sh addJar
-        }
       }
     }
     stage('Create Image Builder') {
@@ -131,7 +96,7 @@ pipeline{
       steps {
         script {
           openshift.withCluster() {
-            openshift.selector("bc", "${REPO_NAME}-${JOB_NAME}").startBuild("--from-file=./api/target/student-api-${VERSION}.jar", "--wait")
+            openshift.selector("bc", "${REPO_NAME}-${JOB_NAME}").startBuild("--from-file=./api/target/${APP_NAME}-${VERSION}.jar", "--wait")
           }
         }
       }
@@ -156,9 +121,9 @@ pipeline{
         }
       }
     }
-stage('Promote to DEV') {
+	stage('Promote to DEV') {
       steps{
-        deployStage('Dev', DEV, DEV_HOST_ROUTE)
+        deployStage('Dev', DEV, DEV_HOST_ROUTE, 'dev')
       }
       post{
         success{
@@ -169,31 +134,10 @@ stage('Promote to DEV') {
         }
       }
     }
-    stage('Report to SonarQube') {
-        steps {
-            script{
-                dir('api'){
-                    sh '/bin/bash -c "mvn sonar:sonar -Dsonar.host.url=${SONARQUBE_HOSTNAME} -Dsonar.login=${SONARQUBE_TOKEN}"'
-                }
-            }
-        }
-    }
-    stage('Deploy to Test'){
-      steps{
-          deployStage('Test', TEST, TEST_HOST_ROUTE)
-      }
-      post {
-        success{
-          echo 'Deployment to Test was successful'
-        }
-        failure{
-          echo 'Deployment to Test failed'
-        }
-      }
-    }
   }
 }
-def deployStage(String stageEnv, String projectEnv, String hostRouteEnv) {
+
+def deployStage(String stageEnv, String projectEnv, String hostRouteEnv, String tag) {
 
   if (!stageEnv.equalsIgnoreCase('Dev')) {
     input("Deploy to ${projectEnv}?")
@@ -202,7 +146,7 @@ def deployStage(String stageEnv, String projectEnv, String hostRouteEnv) {
   openshift.withCluster() {
     openshift.withProject(projectEnv) {
       echo "Tagging image"
-      openshift.tag("${TOOLS}/${REPO_NAME}-${JOB_NAME}:latest", "${REPO_NAME}-${JOB_NAME}:${TAG}")
+      openshift.tag("${TOOLS}/${REPO_NAME}-${JOB_NAME}:latest", "${REPO_NAME}-${JOB_NAME}:${tag}")
       def dcTemplate = openshift.process('-f',
         'tools/openshift/api.dc.yaml',
         "REPO_NAME=${REPO_NAME}",
@@ -210,7 +154,7 @@ def deployStage(String stageEnv, String projectEnv, String hostRouteEnv) {
         "NAMESPACE=${projectEnv}",
         "APP_NAME=${APP_NAME}",
         "HOST_ROUTE=${hostRouteEnv}",
-        "TAG=${TAG}"
+        "TAG=${tag}"
       )
 
       echo "Applying Deployment ${REPO_NAME}"
