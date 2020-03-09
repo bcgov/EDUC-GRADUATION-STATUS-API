@@ -11,7 +11,7 @@ public class TranscriptReport implements StudentReport {
 
     @Override
     public StringBuffer getHtml() {
-        return null;
+        return html;
     }
 
     public void buildTranscriptReportHtml() {

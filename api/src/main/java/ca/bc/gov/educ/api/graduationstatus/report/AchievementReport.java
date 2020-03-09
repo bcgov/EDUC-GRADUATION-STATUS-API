@@ -11,7 +11,7 @@ public class AchievementReport implements StudentReport {
 
     @Override
     public StringBuffer getHtml() {
-        return null;
+        return html;
     }
 
     public void buildAchievementReportHtml() {
