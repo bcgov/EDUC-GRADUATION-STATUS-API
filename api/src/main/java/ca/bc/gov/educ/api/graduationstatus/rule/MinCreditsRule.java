@@ -2,18 +2,26 @@ package ca.bc.gov.educ.api.graduationstatus.rule;
 
 import ca.bc.gov.educ.api.graduationstatus.model.dto.AchievementDto;
 import ca.bc.gov.educ.api.graduationstatus.model.dto.ProgramRule;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-public class MinCreditRule {
+@Data
+public class MinCreditsRule implements Rule {
 
-    private static Logger logger = LoggerFactory.getLogger(MinCreditRule.class);
+    private static Logger logger = LoggerFactory.getLogger(MinCreditsRule.class);
 
-    public boolean execute(ProgramRule programRule, List<AchievementDto> achievements) {
-        int totalCredits = 0;
+    @Autowired
+    private ProgramRule programRule;
+
+    public <T> boolean fire(T parameters) {
+        int totalCredits;
         int requiredCredits = programRule.getRequiredCredits();
+
+        List<AchievementDto> achievements = (List<AchievementDto>)parameters;
 
         if (achievements == null || achievements.size() == 0)
             return false;

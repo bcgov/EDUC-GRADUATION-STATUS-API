@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class GraduationStatusUtils {
 
@@ -48,7 +47,7 @@ public class GraduationStatusUtils {
                             + courseAchievements.get(j).getCourseAchievementId() + " -> Duplicate FOUND - CourseID:"
                             + courseAchievements.get(i).getCourseId());
 
-                    //TODO: If finalPercent of A greater than finalPercent of B -> SELECT A copy to B
+                    //      IF finalPercent of A greater than finalPercent of B -> SELECT A copy to B
                     //      IF finalPercent of B greater than finalPercent of A -> SELECT B copy to A
                     //      IF finalPercent of A equals to finalPercent of B ->
                     //              IF sessionDate of A is older than sessionDate of B -> SELECT A copy to B
