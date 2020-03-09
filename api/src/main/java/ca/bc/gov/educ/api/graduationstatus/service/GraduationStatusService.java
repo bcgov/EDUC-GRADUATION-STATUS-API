@@ -1,6 +1,10 @@
 package ca.bc.gov.educ.api.graduationstatus.service;
 
+import ca.bc.gov.educ.api.graduationstatus.exception.InvalidParameterException;
 import ca.bc.gov.educ.api.graduationstatus.model.dto.*;
+import ca.bc.gov.educ.api.graduationstatus.model.entity.GraduationStatusEntity;
+import ca.bc.gov.educ.api.graduationstatus.model.transformer.GraduationStatusTransformer;
+import ca.bc.gov.educ.api.graduationstatus.repository.GraduationStatusRepository;
 import ca.bc.gov.educ.api.graduationstatus.rule.*;
 import ca.bc.gov.educ.api.graduationstatus.model.dto.ProgramRule;
 import ca.bc.gov.educ.api.graduationstatus.util.GraduationStatusApiConstants;
@@ -12,10 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,6 +27,12 @@ public class GraduationStatusService {
 
     @Autowired
     RestTemplate restTemplate;
+
+    @Autowired
+    private GraduationStatusRepository graduationStatusRepo;
+
+    @Autowired
+    private GraduationStatusTransformer graduationStatusTransformer;
 
     @Value("${course-api.endpoint.courses-by-program-code.url}")
     private String getCoursesByProgramCodeURL;
@@ -310,4 +317,91 @@ public class GraduationStatusService {
 
         return student;
     }
+
+    /**
+     * Get a course populated in a Course DTO
+     *
+     * @param courseId
+     * @return Course
+     * @throws EntityNotFoundException
+
+    public Course getCourseByCourseId(UUID courseId) {
+        Course course = new Course();
+        Optional<CourseEntity> result = courseRepo.findById(courseId);
+
+        if (result.isPresent()) {
+            course = courseTransformer.transformToDTO(result.get());
+            logger.debug(course.toString());
+            return course;
+        }
+        else
+            throw new EntityNotFoundException(CourseEntity.class, CourseApiConstants.COURSE_ID_ATTRIBUTE, courseId.toString());
+    }*/
+
+    /**
+     * Create a new Graduation Status
+     *
+     * @param graduationData
+     * @return
+     * @throws InvalidParameterException
+     */
+    public GraduationData createGradData(GraduationData graduationData) {
+
+        GraduationStatusEntity gradStatusEntity = new GraduationStatusEntity();
+
+        if(graduationData.getGradStatusId() != null)
+            throw new InvalidParameterException(GraduationStatusApiConstants.GRAD_STATUS_ID_ATTRIBUTE);
+
+        gradStatusEntity = graduationStatusTransformer.transformToEntity(graduationData);
+
+        gradStatusEntity.setCreatedBy(GraduationStatusApiConstants.DEFAULT_CREATED_BY);
+        gradStatusEntity.setCreatedTimestamp(GraduationStatusApiConstants.DEFAULT_CREATED_TIMESTAMP);
+        gradStatusEntity.setUpdatedBy(GraduationStatusApiConstants.DEFAULT_UPDATED_BY);
+        gradStatusEntity.setUpdatedTimestamp(GraduationStatusApiConstants.DEFAULT_UPDATED_TIMESTAMP);
+
+        logger.debug("******Graduation Status Entity*****\n" + gradStatusEntity.toString());
+
+        gradStatusEntity = graduationStatusRepo.save(gradStatusEntity);
+
+        return graduationStatusTransformer.transformToDTO(gradStatusEntity);
+    }
+
+    /**
+     * Update a Course
+     *
+     * @param course
+     * @return Course
+     * @throws Exception
+
+    public Course updateCourse(Course course, UUID courseId) {
+
+        CourseEntity courseEntity = new CourseEntity();
+        Optional<CourseEntity> result = courseRepo.findById(courseId);
+
+        if (result.isPresent()) {
+            courseEntity = result.get();
+            logger.debug("Before Update:" + courseEntity.toString());
+
+            courseEntity.setCourseName(course.getCourseName());
+            courseEntity.setCourseCode(course.getCourseCode());
+            courseEntity.setCourseGradeLevel(course.getCourseGradeLevel());
+            courseEntity.setCredits(course.getCredits());
+            courseEntity.setLanguage(course.getLanguage());
+            courseEntity.setCourseStartDate(CourseApiUtils.parseDate(course.getCourseStartDate()));
+            courseEntity.setCourseEndDate(CourseApiUtils.parseDate(course.getCourseEndDate()));
+            courseEntity.setProgramCode(course.getProgramCode());
+            courseEntity.setRequirementCode(course.getRequirementCode());
+            courseEntity.setUpdatedBy(CourseApiConstants.DEFAULT_UPDATED_BY);
+            courseEntity.setUpdatedTimestamp(new Date());
+
+            courseEntity = courseRepo.save(courseEntity);
+
+            logger.debug("After Update:" + courseEntity.toString());
+
+            return courseTransformer.transformToDTO(courseEntity);
+        }
+        else
+            throw new EntityNotFoundException(CourseEntity.class,
+                    CourseApiConstants.COURSE_ID_ATTRIBUTE, course.toString());
+    }*/
 }

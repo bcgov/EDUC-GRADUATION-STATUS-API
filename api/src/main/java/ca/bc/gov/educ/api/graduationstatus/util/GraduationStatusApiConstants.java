@@ -11,6 +11,7 @@ public class GraduationStatusApiConstants {
 
     //Attribute Constants
     public static final String PEN_ATTRIBUTE = "pen";
+    public static final String GRAD_STATUS_ID_ATTRIBUTE = "graduationStatusId";
 
     //Default Attribute value constants
     public static final String DEFAULT_CREATED_BY = "GraduationStatusAPI";

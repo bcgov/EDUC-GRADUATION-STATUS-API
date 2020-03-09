@@ -23,4 +23,11 @@ public class GraduationStatusController {
         logger.debug("Graduation Status API called");
         return gradStatusService.getResponse(pen);
     }
+
+    @PostMapping(GraduationStatusApiConstants.API_ROOT_MAPPING)
+    public GraduationData createGraduationData(@RequestBody GraduationData graduationData) {
+        logger.debug("#Create Graduation Data: " + graduationData.getPen());
+        logger.debug("******GraduationData*****\n" + graduationData.toString());
+        return gradStatusService.createGradData(graduationData);
+    }
 }
