@@ -1,14 +1,20 @@
 package ca.bc.gov.educ.api.graduationstatus.service;
 
+import ca.bc.gov.educ.api.graduationstatus.exception.EntityNotFoundException;
 import ca.bc.gov.educ.api.graduationstatus.exception.InvalidParameterException;
 import ca.bc.gov.educ.api.graduationstatus.model.dto.*;
 import ca.bc.gov.educ.api.graduationstatus.model.entity.GraduationStatusEntity;
 import ca.bc.gov.educ.api.graduationstatus.model.transformer.GraduationStatusTransformer;
+import ca.bc.gov.educ.api.graduationstatus.report.AchievementReport;
+import ca.bc.gov.educ.api.graduationstatus.report.StudentReport;
+import ca.bc.gov.educ.api.graduationstatus.report.TranscriptReport;
 import ca.bc.gov.educ.api.graduationstatus.repository.GraduationStatusRepository;
 import ca.bc.gov.educ.api.graduationstatus.rule.*;
 import ca.bc.gov.educ.api.graduationstatus.model.dto.ProgramRule;
 import ca.bc.gov.educ.api.graduationstatus.util.GraduationStatusApiConstants;
 import ca.bc.gov.educ.api.graduationstatus.util.GraduationStatusUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +49,7 @@ public class GraduationStatusService {
     @Value("${program-rule.endpoint.get-program-rules.url}")
     private String getProgramRulesURL;
 
-    public Student getResponse(String pen) {
+    public GraduationData graduateStudent(String pen) {
         logger.debug("#Graduation Status API\n");
         boolean gradStatusFlag = true;
 
@@ -315,28 +321,47 @@ public class GraduationStatusService {
         else
             student.getGradMessages().add("Student Not Graduated!");
 
-        return student;
+        GraduationData graduationData = new GraduationData();
+        graduationData.setPen(pen);
+        graduationData.setStatusDate(
+                GraduationStatusUtils.formatDate(GraduationStatusApiConstants.DEFAULT_UPDATED_TIMESTAMP)
+        );
+        try {
+            graduationData.getStudentGradData().append(new ObjectMapper().writeValueAsString(student));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            graduationData.getStudentGradData().append("Error reading/writing student data!");
+        }
+
+        StudentReport transcriptReport = new TranscriptReport();
+        StudentReport achievementReport = new AchievementReport();
+
+        graduationData.setTranscriptReport(transcriptReport.getHtml());
+        graduationData.setAchievementReport(achievementReport.getHtml());
+
+        return createGradData(graduationData);
     }
 
     /**
-     * Get a course populated in a Course DTO
+     * Get Graduation Status data for a Student populated in a GraduationData DTO object
      *
-     * @param courseId
-     * @return Course
+     * @param pen
+     * @return GraduationData
      * @throws EntityNotFoundException
-
-    public Course getCourseByCourseId(UUID courseId) {
-        Course course = new Course();
-        Optional<CourseEntity> result = courseRepo.findById(courseId);
+     */
+    public GraduationData getGraduationData(String pen) {
+        GraduationData graduationData = new GraduationData();
+        Optional<GraduationStatusEntity> result = graduationStatusRepo.findByPen(pen);
 
         if (result.isPresent()) {
-            course = courseTransformer.transformToDTO(result.get());
-            logger.debug(course.toString());
-            return course;
+            graduationData = graduationStatusTransformer.transformToDTO(result.get());
+            logger.debug("");
+            return graduationData;
         }
         else
-            throw new EntityNotFoundException(CourseEntity.class, CourseApiConstants.COURSE_ID_ATTRIBUTE, courseId.toString());
-    }*/
+            throw new EntityNotFoundException(GraduationStatusEntity.class,
+                    GraduationStatusApiConstants.PEN_ATTRIBUTE, pen);
+    }
 
     /**
      * Create a new Graduation Status

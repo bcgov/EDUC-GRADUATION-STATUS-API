@@ -10,11 +10,17 @@ import java.util.UUID;
 @Component
 public class GraduationData {
 
+    public GraduationData() {
+        studentGradData = new StringBuffer();
+        transcriptReport = new StringBuffer();
+        achievementReport = new StringBuffer();
+    }
+
     private UUID gradStatusId;
     private String pen;
-    private String studentGradData;
-    private String transcriptReport;
-    private String achievementReport;
+    private StringBuffer studentGradData;
+    private StringBuffer transcriptReport;
+    private StringBuffer achievementReport;
     private String statusDate;
 
 }

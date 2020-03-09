@@ -19,9 +19,15 @@ public class GraduationStatusController {
     GraduationStatusService gradStatusService;
 
     @GetMapping (GraduationStatusApiConstants.GRADUATION_STATUS_BY_PEN)
-    public Student getResponse(@PathVariable String pen) {
+    public GraduationData getStudentGradStatus(@PathVariable String pen) {
+        logger.debug("Get Student Grad Status for PEN: " + pen);
+        return gradStatusService.getGraduationData(pen);
+    }
+
+    @PostMapping (GraduationStatusApiConstants.GRADUATE_STUDENT_BY_PEN)
+    public GraduationData graduateStudent(@PathVariable String pen) {
         logger.debug("Graduation Status API called");
-        return gradStatusService.getResponse(pen);
+        return gradStatusService.graduateStudent(pen);
     }
 
     @PostMapping(GraduationStatusApiConstants.API_ROOT_MAPPING)

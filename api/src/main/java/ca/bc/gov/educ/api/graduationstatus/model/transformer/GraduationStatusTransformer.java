@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class GraduationStatusTransformer {
 
@@ -19,9 +22,9 @@ public class GraduationStatusTransformer {
 
     private static Logger logger = LoggerFactory.getLogger(GraduationStatusService.class);
 
-    public GraduationData transformToDTO (GraduationStatusEntity gradStatusEntity ) {
-        GraduationData graduationData = modelMapper.map(gradStatusEntity, GraduationData.class);
-        graduationData.setStatusDate(GraduationStatusUtils.formatDate(gradStatusEntity.getUpdatedTimestamp()));
+    public GraduationData transformToDTO (GraduationStatusEntity graduationStatusEntity ) {
+        GraduationData graduationData = modelMapper.map(graduationStatusEntity, GraduationData.class);
+        graduationData.setStatusDate(GraduationStatusUtils.formatDate(graduationStatusEntity.getUpdatedTimestamp()));
 
         return graduationData;
     }

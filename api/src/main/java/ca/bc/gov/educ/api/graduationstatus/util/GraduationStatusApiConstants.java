@@ -8,6 +8,7 @@ public class GraduationStatusApiConstants {
     public static final String API_VERSION = "v1";
     public static final String GRADUATION_STATUS_API_ROOT_MAPPING = "/api/" + API_VERSION + "/graduation-status";
     public static final String GRADUATION_STATUS_BY_PEN = "/{pen}";
+    public static final String GRADUATE_STUDENT_BY_PEN = "/{pen}";
 
     //Attribute Constants
     public static final String PEN_ATTRIBUTE = "pen";
