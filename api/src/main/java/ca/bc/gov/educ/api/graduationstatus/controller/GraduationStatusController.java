@@ -7,6 +7,7 @@ import ca.bc.gov.educ.api.graduationstatus.util.GraduationStatusApiConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
@@ -26,7 +27,7 @@ public class GraduationStatusController {
     }
 
     @GetMapping (GraduationStatusApiConstants.STUDENT_ACHIEVEMENT_REPORT_BY_PEN)
-    public String getStudentAchievementReportByPen(@PathVariable String pen) {
+    public ResponseEntity<byte[]> getStudentAchievementReportByPen(@PathVariable String pen) {
         logger.debug("Get Student Achievement Report for PEN: " + pen);
         return gradStatusService.getStudentAchievementReportByPen(pen);
     }

@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -53,6 +55,9 @@ public class GraduationStatusService {
 
     @Value("${endpoint.program-rule.get-program-rules.url}")
     private String getProgramRulesURL;
+
+    @Value("${endpoint.weasyprint.getPDFfromHTML}")
+    private String getPDFfromHTMLURL;
 
     public GraduationData graduateStudent(String pen) {
         logger.debug("#Graduation Status API\n");
@@ -375,11 +380,22 @@ public class GraduationStatusService {
      * @return GraduationData
      * @throws EntityNotFoundException
      */
-    public String getStudentAchievementReportByPen(String pen) {
-        //StudentAchievementReportEntity graduationData = new GraduationData();
-        String result = studentReportRepo.findStudentAchievementReportEntity(pen);
+    public ResponseEntity<byte[]> getStudentAchievementReportByPen(String pen) {
+        String achievementReportInHtml = studentReportRepo.findStudentAchievementReportEntity(pen);
 
-        return result;
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(
+                new ByteArrayHttpMessageConverter());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
+
+        HttpEntity<String> entity = new HttpEntity<String>(achievementReportInHtml, headers);
+
+        ResponseEntity<byte[]> achievementReportAsPdf = restTemplate.exchange(
+                getPDFfromHTMLURL, HttpMethod.POST, entity, byte[].class, "1");
+
+        return achievementReportAsPdf;
     }
 
     /**
