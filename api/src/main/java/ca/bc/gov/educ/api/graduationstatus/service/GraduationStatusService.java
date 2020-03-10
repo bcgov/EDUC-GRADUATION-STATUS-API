@@ -40,13 +40,13 @@ public class GraduationStatusService {
     @Autowired
     private GraduationStatusTransformer graduationStatusTransformer;
 
-    @Value("${course-api.endpoint.courses-by-program-code.url}")
+    @Value("${endpoint.course-api.courses-by-program-code.url}")
     private String getCoursesByProgramCodeURL;
 
-    @Value("${course-achievement-api.endpoint.course-achievements-by-pen.url}")
+    @Value("${endpoint.course-achievement-api.course-achievements-by-pen.url}")
     private String getCourseAchievementsByPenURL;
 
-    @Value("${program-rule.endpoint.get-program-rules.url}")
+    @Value("${endpoint.program-rule.get-program-rules.url}")
     private String getProgramRulesURL;
 
     public GraduationData graduateStudent(String pen) {
