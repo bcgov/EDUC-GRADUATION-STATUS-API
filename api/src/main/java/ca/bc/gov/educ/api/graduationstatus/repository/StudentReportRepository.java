@@ -13,8 +13,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface GraduationStatusRepository extends CrudRepository<GraduationStatusEntity, UUID> {
+public interface StudentReportRepository extends JpaRepository<StudentAchievementReportEntity, UUID> {
 
-    Optional<GraduationStatusEntity> findByPen (String pen);
+    @Query(value = "SELECT g.achievementReport FROM StudentAchievementReportEntity g WHERE g.pen = :pen")
+    String findStudentAchievementReportEntity(@Param("pen") String pen);
 
 }

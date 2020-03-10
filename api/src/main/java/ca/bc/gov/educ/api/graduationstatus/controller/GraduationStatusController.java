@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.api.graduationstatus.controller;
 
 import ca.bc.gov.educ.api.graduationstatus.model.dto.*;
+import ca.bc.gov.educ.api.graduationstatus.model.entity.StudentAchievementReportEntity;
 import ca.bc.gov.educ.api.graduationstatus.service.GraduationStatusService;
 import ca.bc.gov.educ.api.graduationstatus.util.GraduationStatusApiConstants;
 import org.slf4j.Logger;
@@ -22,6 +23,12 @@ public class GraduationStatusController {
     public GraduationData getStudentGradStatus(@PathVariable String pen) {
         logger.debug("Get Student Grad Status for PEN: " + pen);
         return gradStatusService.getGraduationData(pen);
+    }
+
+    @GetMapping (GraduationStatusApiConstants.STUDENT_ACHIEVEMENT_REPORT_BY_PEN)
+    public String getStudentAchievementReportByPen(@PathVariable String pen) {
+        logger.debug("Get Student Achievement Report for PEN: " + pen);
+        return gradStatusService.getStudentAchievementReportByPen(pen);
     }
 
     @PostMapping (GraduationStatusApiConstants.GRADUATE_STUDENT_BY_PEN)

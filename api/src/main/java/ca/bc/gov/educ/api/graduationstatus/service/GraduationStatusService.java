@@ -4,11 +4,13 @@ import ca.bc.gov.educ.api.graduationstatus.exception.EntityNotFoundException;
 import ca.bc.gov.educ.api.graduationstatus.exception.InvalidParameterException;
 import ca.bc.gov.educ.api.graduationstatus.model.dto.*;
 import ca.bc.gov.educ.api.graduationstatus.model.entity.GraduationStatusEntity;
+import ca.bc.gov.educ.api.graduationstatus.model.entity.StudentAchievementReportEntity;
 import ca.bc.gov.educ.api.graduationstatus.model.transformer.GraduationStatusTransformer;
 import ca.bc.gov.educ.api.graduationstatus.report.AchievementReport;
 import ca.bc.gov.educ.api.graduationstatus.report.StudentReport;
 import ca.bc.gov.educ.api.graduationstatus.report.TranscriptReport;
 import ca.bc.gov.educ.api.graduationstatus.repository.GraduationStatusRepository;
+import ca.bc.gov.educ.api.graduationstatus.repository.StudentReportRepository;
 import ca.bc.gov.educ.api.graduationstatus.rule.*;
 import ca.bc.gov.educ.api.graduationstatus.model.dto.ProgramRule;
 import ca.bc.gov.educ.api.graduationstatus.util.GraduationStatusApiConstants;
@@ -36,6 +38,9 @@ public class GraduationStatusService {
 
     @Autowired
     private GraduationStatusRepository graduationStatusRepo;
+
+    @Autowired
+    StudentReportRepository studentReportRepo;
 
     @Autowired
     private GraduationStatusTransformer graduationStatusTransformer;
@@ -364,6 +369,20 @@ public class GraduationStatusService {
     }
 
     /**
+     * Get Student Achievement Report By PEN
+     *
+     * @param pen
+     * @return GraduationData
+     * @throws EntityNotFoundException
+     */
+    public String getStudentAchievementReportByPen(String pen) {
+        //StudentAchievementReportEntity graduationData = new GraduationData();
+        String result = studentReportRepo.findStudentAchievementReportEntity(pen);
+
+        return result;
+    }
+
+    /**
      * Create a new Graduation Status
      *
      * @param graduationData
@@ -371,6 +390,34 @@ public class GraduationStatusService {
      * @throws InvalidParameterException
      */
     public GraduationData createGradData(GraduationData graduationData) {
+
+        GraduationStatusEntity gradStatusEntity = new GraduationStatusEntity();
+
+        if(graduationData.getGradStatusId() != null)
+            throw new InvalidParameterException(GraduationStatusApiConstants.GRAD_STATUS_ID_ATTRIBUTE);
+
+        gradStatusEntity = graduationStatusTransformer.transformToEntity(graduationData);
+
+        gradStatusEntity.setCreatedBy(GraduationStatusApiConstants.DEFAULT_CREATED_BY);
+        gradStatusEntity.setCreatedTimestamp(GraduationStatusApiConstants.DEFAULT_CREATED_TIMESTAMP);
+        gradStatusEntity.setUpdatedBy(GraduationStatusApiConstants.DEFAULT_UPDATED_BY);
+        gradStatusEntity.setUpdatedTimestamp(GraduationStatusApiConstants.DEFAULT_UPDATED_TIMESTAMP);
+
+        logger.debug("******Graduation Status Entity*****\n" + gradStatusEntity.toString());
+
+        gradStatusEntity = graduationStatusRepo.save(gradStatusEntity);
+
+        return graduationStatusTransformer.transformToDTO(gradStatusEntity);
+    }
+
+    /**
+     * Update existing Graduation Status
+     *
+     * @param graduationData
+     * @return
+     * @throws InvalidParameterException
+     */
+    public GraduationData updateGradData(GraduationData graduationData) {
 
         GraduationStatusEntity gradStatusEntity = new GraduationStatusEntity();
 
