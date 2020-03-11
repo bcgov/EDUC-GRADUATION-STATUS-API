@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface GraduationStatusRepository extends CrudRepository<GraduationStatusEntity, UUID> {
+public interface GraduationStatusRepository extends JpaRepository<GraduationStatusEntity, UUID> {
 
     Optional<GraduationStatusEntity> findByPen (String pen);
 

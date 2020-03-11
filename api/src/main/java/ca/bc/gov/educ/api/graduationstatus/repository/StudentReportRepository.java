@@ -15,7 +15,7 @@ import java.util.UUID;
 @Repository
 public interface StudentReportRepository extends JpaRepository<StudentAchievementReportEntity, UUID> {
 
-    @Query(value = "SELECT g.achievementReport FROM StudentAchievementReportEntity g WHERE g.pen = :pen")
+    @Query(value = "SELECT s.achievementReport FROM StudentAchievementReportEntity s WHERE s.pen = :pen")
     String findStudentAchievementReportEntity(@Param("pen") String pen);
 
 }

@@ -26,6 +26,7 @@ import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.swing.text.html.parser.Entity;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -349,7 +350,16 @@ public class GraduationStatusService {
         graduationData.setTranscriptReport(transcriptReport.getHtml());
         graduationData.setAchievementReport(achievementReport.getHtml());
 
-        return createGradData(graduationData);
+        GraduationData temp = new GraduationData();
+
+        try {
+            temp = getGraduationData(pen);
+        }catch (EntityNotFoundException e) {
+            return createGradData(graduationData);
+        }
+
+        graduationData.setGradStatusId(temp.getGradStatusId());
+        return updateGradData(graduationData);
     }
 
     /**
@@ -436,9 +446,6 @@ public class GraduationStatusService {
     public GraduationData updateGradData(GraduationData graduationData) {
 
         GraduationStatusEntity gradStatusEntity = new GraduationStatusEntity();
-
-        if(graduationData.getGradStatusId() != null)
-            throw new InvalidParameterException(GraduationStatusApiConstants.GRAD_STATUS_ID_ATTRIBUTE);
 
         gradStatusEntity = graduationStatusTransformer.transformToEntity(graduationData);
 
