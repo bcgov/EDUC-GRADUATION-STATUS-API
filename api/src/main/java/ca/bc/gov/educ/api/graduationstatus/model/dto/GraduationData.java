@@ -17,10 +17,10 @@ public class GraduationData {
     }
 
     private UUID gradStatusId;
-    private String pen;
+    private String pen = "";
     private StringBuffer studentGradData;
     private StringBuffer transcriptReport;
     private StringBuffer achievementReport;
-    private String statusDate;
+    private String statusDate = "";
 
 }

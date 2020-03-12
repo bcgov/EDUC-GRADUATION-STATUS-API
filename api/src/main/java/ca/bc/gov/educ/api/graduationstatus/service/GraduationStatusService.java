@@ -284,10 +284,10 @@ public class GraduationStatusService {
                 student.getRequirementsNotMet().add(programRule.getNotMetDescription());
             }
 
-            student.getGradMessages().add("Not all Match rules Met!");
+            student.getGradMessages().add("All the Match rules not Met.");
         }
         else {
-            student.getGradMessages().add("All Match rules met!");
+            student.getGradMessages().add("All the Match rules met.");
         }
 
         //=======================================================================================
@@ -330,12 +330,11 @@ public class GraduationStatusService {
 
         if (gradStatusFlag) {
             gradResultMessage = "The Student has Graduated in the " + student.getGraduationProgram() + " graduation program";
-            student.getGradMessages().add("Student Graduated!");
         }
         else {
             gradResultMessage = "The Student has not yet Graduated in the " + student.getGraduationProgram() + " graduation program";
-            student.getGradMessages().add("Student Not Graduated!");
         }
+        student.getGradMessages().add(gradResultMessage);
 
         GraduationData graduationData = new GraduationData();
         graduationData.setPen(pen);
@@ -427,11 +426,9 @@ public class GraduationStatusService {
         if (result.isPresent()) {
             graduationData = graduationStatusTransformer.transformToDTO(result.get());
             logger.debug("");
-            return graduationData;
         }
-        else
-            throw new EntityNotFoundException(GraduationStatusEntity.class,
-                    GraduationStatusApiConstants.PEN_ATTRIBUTE, pen);
+        
+        return graduationData;
     }
 
     /**
