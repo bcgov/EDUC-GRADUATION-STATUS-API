@@ -181,9 +181,8 @@ public class GraduationStatusService {
             achievements.add(ach);
         }
 
-        Student student = new Student();
+        Student student = new Student(pen);
 
-        student.setPen(pen);
         student.setAchievements(achievements);
         student.setGradMessages(new ArrayList<String>());
         student.setRequirementsMet(new ArrayList<String>());

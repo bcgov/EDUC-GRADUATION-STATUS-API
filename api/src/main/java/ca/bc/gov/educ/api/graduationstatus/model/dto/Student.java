@@ -32,6 +32,68 @@ public class Student {
     private List<String> requirementsNotMet;
     private List<AchievementDto> achievements;
 
+    public Student() {
+
+    }
+
+    public Student (String pen){
+        this.pen = pen;
+        if ("126214493".compareTo(pen) == 0) {
+            legalFirstName = "Betty";
+            legalMiddleName = "";
+            legalLastName = "Cotnam";
+            graduationProgram = "2018";
+            school = "King George Secondary";
+            dob = "16-DEC-2002";
+            sexCode = "F";
+            genderCode = "F";
+            dataSourceCode = "AB11";
+            usualFirstName = "Cotnam";
+            usualMiddleName = "";
+            usualLastName = "Doe";
+            email = "betty.cotnam@kinggeorge.ca";
+            gradeCode = "11";
+            citizenship = "C";
+            address = "123 King George Ave, Victoria BC A1B2C3";
+        }
+        else if ("128201845".compareTo(pen) == 0) {
+            legalFirstName = "Emily";
+            legalMiddleName = "";
+            legalLastName = "Fuller";
+            graduationProgram = "2018";
+            school = "King George Secondary";
+            dob = "30-MAY-2003";
+            sexCode = "F";
+            genderCode = "F";
+            dataSourceCode = "AB12";
+            usualFirstName = "Emily";
+            usualMiddleName = "";
+            usualLastName = "Fuller";
+            email = "emily.fuller@stellys.ca";
+            gradeCode = "12";
+            citizenship = "C";
+            address = "456 Stellys, Victoria BC A1B2C3";
+        }
+        else if ("123456789".compareTo(pen) == 0) {
+            legalFirstName = "Matthew";
+            legalMiddleName = "Robert";
+            legalLastName = "Timothy";
+            graduationProgram = "2018";
+            school = "Oak Bay High School";
+            dob = "09-SEP-2004";
+            sexCode = "M";
+            genderCode = "M";
+            dataSourceCode = "AB10";
+            usualFirstName = "Matthew";
+            usualMiddleName = "Robert";
+            usualLastName = "Timothy";
+            email = "matthew.timothy@oakbay.ca";
+            gradeCode = "10";
+            citizenship = "C";
+            address = "987 Oak Street, Victoria BC A1B2C3";
+        }
+    }
+
     @Override
     public String toString() {
         return "Student{" +
