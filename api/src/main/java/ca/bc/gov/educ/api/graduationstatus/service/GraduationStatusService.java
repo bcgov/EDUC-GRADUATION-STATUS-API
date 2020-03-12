@@ -327,10 +327,16 @@ public class GraduationStatusService {
             }
         }
 
-        if (gradStatusFlag)
+        String gradResultMessage;
+
+        if (gradStatusFlag) {
+            gradResultMessage = "The Student has Graduated in the " + student.getGraduationProgram() + " graduation program";
             student.getGradMessages().add("Student Graduated!");
-        else
+        }
+        else {
+            gradResultMessage = "The Student has not yet Graduated in the " + student.getGraduationProgram() + " graduation program";
             student.getGradMessages().add("Student Not Graduated!");
+        }
 
         GraduationData graduationData = new GraduationData();
         graduationData.setPen(pen);
@@ -344,11 +350,59 @@ public class GraduationStatusService {
             graduationData.getStudentGradData().append("Error reading/writing student data!");
         }
 
-        StudentReport transcriptReport = new TranscriptReport();
-        StudentReport achievementReport = new AchievementReport();
+        HashMap<String, String> reportParameters = new HashMap<String, String>();
+        reportParameters.put("UPDATE_DATE",
+                GraduationStatusUtils.formatDate(GraduationStatusApiConstants.DEFAULT_UPDATED_TIMESTAMP));
+        reportParameters.put("NAME", student.getLegalLastName() + ", " + student.getLegalFirstName() + " "
+                                + student.getLegalMiddleName());
+        reportParameters.put("PEN", student.getPen());
+        reportParameters.put("GRAD_PROGRAM", student.getGraduationProgram());
+        reportParameters.put("SCHOOL_NAME", student.getSchool());
+        reportParameters.put("DOB", student.getDob());
+        reportParameters.put("GRADE", student.getGradeCode());
+        reportParameters.put("GENDER", student.getGenderCode());
+        reportParameters.put("CITIZENSHIP", student.getCitizenship());
+        reportParameters.put("ADDRESS", student.getAddress());
+        reportParameters.put("GRADUATION_MESSAGE", gradResultMessage);
 
-        graduationData.setTranscriptReport(transcriptReport.getHtml());
-        graduationData.setAchievementReport(achievementReport.getHtml());
+        StringBuffer tableData = new StringBuffer();
+
+        for (AchievementDto achievement : student.getAchievements()) {
+            tableData.append("<tr>");
+            tableData.append("<td>" + achievement.getCourse().getCourseName() + "</td>");
+            tableData.append("<td>" + achievement.getCourse().getCourseCode() + "</td>");
+            tableData.append("<td>" + achievement.getGradRequirementMet() + "</td>");
+            tableData.append("<td>" + (achievement.getCourseType() == null ? "" : achievement.getCourseType())  + "</td>");
+            tableData.append("<td>" + achievement.getSessionDate() + "</td>");
+            tableData.append("<td>" + achievement.getInterimPercent() + "</td>");
+            tableData.append("<td>" + achievement.getFinalPercent() + "</td>");
+            tableData.append("<td>" + achievement.getFinalLetterGrade() + "</td>");
+            tableData.append("<td>" + achievement.getCredits() + "</td>");
+            tableData.append("<td>" + (achievement.isFailed() ? "Failed" : (achievement.isDuplicate() ? "Duplicate" : "")) + "</td>");
+            tableData.append("</tr>");
+        }
+        reportParameters.put("TABLE_DATA", tableData.toString());
+        reportParameters.put("SUB_PROGRAM_LIST", "<ul> <li>Advanced Placement</li> <li>Career Program: Agriculture</li> </ul>");
+
+        StringBuffer reqMetList = new StringBuffer("<ul>");
+        for (String s : student.getRequirementsMet()) {
+            reqMetList.append("<li>" +s + "</li>");
+        }
+        reqMetList.append("</ul>");
+        reportParameters.put("REQ_MET_LIST", reqMetList.toString());
+
+        StringBuffer reqNotMetList = new StringBuffer("<ul>");
+        for (String s : student.getRequirementsNotMet()) {
+            reqNotMetList.append("<li>" +s + "</li>");
+        }
+        reqMetList.append("</ul>");
+        reportParameters.put("REQ_NOT_MET_LIST", reqNotMetList.toString());
+
+        StudentReport transcriptReport = new TranscriptReport(reportParameters);
+        StudentReport achievementReport = new AchievementReport(reportParameters);
+
+        graduationData.setTranscriptReport(transcriptReport.getHtmlTemplate());
+        graduationData.setAchievementReport(achievementReport.getHtmlTemplate());
 
         GraduationData temp = new GraduationData();
 
