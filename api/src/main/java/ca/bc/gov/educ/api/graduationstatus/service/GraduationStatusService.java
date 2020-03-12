@@ -360,7 +360,6 @@ public class GraduationStatusService {
         reportParameters.put("DOB", student.getDob());
         reportParameters.put("GRADE", student.getGradeCode());
         reportParameters.put("GENDER", student.getGenderCode());
-        reportParameters.put("CITIZENSHIP", student.getCitizenship());
         reportParameters.put("ADDRESS", student.getAddress());
         reportParameters.put("GRADUATION_MESSAGE", gradResultMessage);
 

@@ -34,7 +34,7 @@ public class AchievementReport implements StudentReport {
                 "    \t<h2>Student</h2>\n" +
                 "        <p><strong>{$NAME}</strong></p> <p>PEN: {$PEN}</p> <p>Graduation Program : {$GRAD_PROGRAM}</p>\n" +
                 "    \t<p>School: {$SCHOOL_NAME}</p> <p>Date of Birth: {$DOB}</p> <p>Grade: {$GRADE}</p>\n" +
-                "    \t<p>Gender: {$GENDER}</p> <p>Citizenship: {$CITIZENSHIP}</p> <p>Address: {$ADDRESS}</p>\n" +
+                "    \t<p>Gender: {$GENDER}</p> <p>Address: {$ADDRESS}</p>\n" +
                 "    \t<h2 style=\"color: blue\">Student Graduation Status </h2>\n" +
                 "    \t<h3 style=\"color: blue\">{$GRADUATION_MESSAGE}</h3>\n" +
                 "        <h2>Student Course / Assessment </h2>\n" +
