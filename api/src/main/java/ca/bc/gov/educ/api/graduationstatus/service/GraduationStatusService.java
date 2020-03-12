@@ -255,7 +255,7 @@ public class GraduationStatusService {
                     .findAny()
                     .orElse(null);
 
-            if(tempProgramRule != null){
+            if(tempProgramRule != null && !tempAchievement.isFailed() && !tempAchievement.isDuplicate()){
                 achievementsIterator.remove();
                 logger.debug("Requirement Met -> Requirement Code:" + tempProgramRule.getRequirementCode()
                         + " Course:" + tempAchievement.getCourse().getCourseName() + "\n");
@@ -427,7 +427,7 @@ public class GraduationStatusService {
             graduationData = graduationStatusTransformer.transformToDTO(result.get());
             logger.debug("");
         }
-        
+
         return graduationData;
     }
 
