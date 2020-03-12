@@ -367,18 +367,17 @@ public class GraduationStatusService {
         StringBuffer tableData = new StringBuffer();
 
         for (AchievementDto achievement : student.getAchievements()) {
-            tableData.append("<tr>");
-            tableData.append("<td>" + achievement.getCourse().getCourseName() + "</td>");
-            tableData.append("<td>" + achievement.getCourse().getCourseCode() + "</td>");
-            tableData.append("<td>" + achievement.getGradRequirementMet() + "</td>");
-            tableData.append("<td>" + (achievement.getCourseType() == null ? "" : achievement.getCourseType())  + "</td>");
-            tableData.append("<td>" + achievement.getSessionDate() + "</td>");
-            tableData.append("<td>" + achievement.getInterimPercent() + "</td>");
-            tableData.append("<td>" + achievement.getFinalPercent() + "</td>");
-            tableData.append("<td>" + achievement.getFinalLetterGrade() + "</td>");
-            tableData.append("<td>" + achievement.getCredits() + "</td>");
-            tableData.append("<td>" + (achievement.isFailed() ? "Failed" : (achievement.isDuplicate() ? "Duplicate" : "")) + "</td>");
-            tableData.append("</tr>");
+            tableData.append("<tr>").append("<td>").append(achievement.getCourse().getCourseName()).append("</td>")
+                    .append("<td>").append(achievement.getCourse().getCourseCode()).append("</td>")
+                    .append("<td>").append(achievement.getGradRequirementMet() == 0 ? "" : achievement.getGradRequirementMet()).append("</td>")
+                    .append("<td>").append(achievement.getCourseType() == null ? "" : achievement.getCourseType()).append("</td>")
+                    .append("<td>").append(achievement.getSessionDate()).append("</td>")
+                    .append("<td>").append(achievement.getInterimPercent()).append("</td>")
+                    .append("<td>").append(achievement.getFinalPercent()).append("</td>")
+                    .append("<td>").append(achievement.getFinalLetterGrade()).append("</td>")
+                    .append("<td>").append(achievement.getCredits()).append("</td>")
+                    .append("<td>").append(achievement.isFailed() ? "Failed" : (achievement.isDuplicate() ? "Duplicate" : "")).append("</td>")
+                    .append("</tr>");
         }
         reportParameters.put("TABLE_DATA", tableData.toString());
         reportParameters.put("SUB_PROGRAM_LIST", "<ul> <li>Advanced Placement</li> <li>Career Program: Agriculture</li> </ul>");
