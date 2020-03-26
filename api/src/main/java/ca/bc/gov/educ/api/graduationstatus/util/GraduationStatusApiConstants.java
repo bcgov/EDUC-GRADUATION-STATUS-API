@@ -1,5 +1,7 @@
 package ca.bc.gov.educ.api.graduationstatus.util;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.util.Date;
 
 public class GraduationStatusApiConstants {
@@ -34,4 +36,10 @@ public class GraduationStatusApiConstants {
     public static final String RULE_TYPE_MIN_CREDITS_ELECTIVE = "MinCreditsElective";
     public static final String RULE_TYPE_ACTIVE_FLAG_Y = "Y";
     public static final String RULE_TYPE_ACTIVE_FLAG_N = "N";
+
+    //Application Properties Constants
+    public static final String ENDPOINT_COURSES_BY_PROGRAM_CODE_URL = "${endpoint.course-api.courses-by-program-code.url}";
+    public static final String ENDPOINT_COURSE_ACHIEVEMENTS_BY_PEN_URL = "${endpoint.course-achievement-api.course-achievements-by-pen.url}";
+    public static final String ENDPOINT_GET_PROGRAM_RULES_URL = "${endpoint.program-rule.get-program-rules.url}";
+    public static final String ENDPOINT_GET_PDF_FROM_HTML_URL = "${endpoint.weasyprint.getPDFfromHTML}";
 }

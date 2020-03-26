@@ -48,16 +48,16 @@ public class GraduationStatusService {
     @Autowired
     private GraduationStatusTransformer graduationStatusTransformer;
 
-    @Value("${endpoint.course-api.courses-by-program-code.url}")
+    @Value(GraduationStatusApiConstants.ENDPOINT_COURSES_BY_PROGRAM_CODE_URL)
     private String getCoursesByProgramCodeURL;
 
-    @Value("${endpoint.course-achievement-api.course-achievements-by-pen.url}")
+    @Value(GraduationStatusApiConstants.ENDPOINT_COURSE_ACHIEVEMENTS_BY_PEN_URL)
     private String getCourseAchievementsByPenURL;
 
-    @Value("${endpoint.program-rule.get-program-rules.url}")
+    @Value(GraduationStatusApiConstants.ENDPOINT_GET_PROGRAM_RULES_URL)
     private String getProgramRulesURL;
 
-    @Value("${endpoint.weasyprint.getPDFfromHTML}")
+    @Value(GraduationStatusApiConstants.ENDPOINT_GET_PDF_FROM_HTML_URL)
     private String getPDFfromHTMLURL;
 
     public GraduationData graduateStudent(String pen) {
