@@ -1,6 +1,11 @@
 # EDUC-GRADUATION-STATUS-API
 Graduation Status API for Students
 
+[![img](https://img.shields.io/badge/status-Inactive-orange)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
+
+Ref: https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md
+
+
 ## Documentation
 
 * [Online Graduation Status API Spec](https://graduationstatusapi.docs.apiary.io/#)
